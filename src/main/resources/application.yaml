@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: 2027SpringProject
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/test
+    username: root
+    password: Eating42@@
+    driver-class-name: com.mysql.cj.jdbc.Driver
