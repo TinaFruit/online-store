@@ -41,10 +41,10 @@ public class Login {
         try {
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                    user.getUserName(),
-                    user.getPassword()));
+                            user.getUserName(),
+                            user.getPassword()));
             String token = jwtUtil.generateToken(authenticate.getName());//  // 生成 Token
-            return ResponseEntity.ok(new LoginResponse(token,authenticate.getName())); // 生成 Token
+            return ResponseEntity.ok(new LoginResponse(token,authenticate.getName()));
         }catch (Exception e){
             return ResponseEntity.status(401).body("登陆失败，用户名不对 或者 token 不对");
         }
