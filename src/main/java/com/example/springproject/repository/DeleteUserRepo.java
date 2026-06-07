@@ -22,10 +22,4 @@ public class DeleteUserRepo {
         return update>0;
     }
 
-    public String checkUserAndGetPassword(String username){
-        String sql = "select password from users where user_Name=?";
-        String hashpassword = jdbcTemplate.queryForObject(sql, String.class,username);
-        return hashpassword;
-    }
-
 }

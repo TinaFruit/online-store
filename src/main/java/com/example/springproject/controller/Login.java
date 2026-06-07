@@ -5,6 +5,7 @@ import com.example.springproject.model.Users;
 import com.example.springproject.security.JwtUtil;
 import com.example.springproject.security.UserDetailsServiceImpl;
 import com.example.springproject.service.LoginSevice;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,7 +38,7 @@ public class Login {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody Users user){
+    public ResponseEntity<?> loginUser(@Valid @RequestBody Users user){
         try {
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
