@@ -38,9 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/hello").permitAll() // 这3个接口不拦截
                         .anyRequest().authenticated()                        // 其余anyRequest都要authenticated登录
                 )
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // 测试时候 可以disable CSRF（Cross-Site Request Forgery，跨站请求伪造）是针对 Cookie 登录 的攻击
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 防伪造攻击，开发先关掉 ，关掉 csrf，不然 POST 请求会被拦截
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // ← 加这行 把 JwtFilter 插在默认Filter（UsernamePasswordAuthenticationFilter）前面
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)// ← 加这行 把 JwtFilter 插在默认Filter（UsernamePasswordAuthenticationFilter）前面
+                .logout(x->x.disable()); //Spring Security 默认自己接管了 /logout 这个路径，你的 Controller 根本不会被执行到，直接被框架拦截返回 403。你自己写的 @GetMapping("/logout") 根本不会执行,选择B： 把你的接口改个名字，比如 /signout，完全绕开冲突：@GetMapping("/signout")
 
         return http.build();
     }

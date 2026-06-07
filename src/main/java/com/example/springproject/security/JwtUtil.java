@@ -1,12 +1,16 @@
 package com.example.springproject.security;
 
+import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
+
+import static com.example.springproject.service.LogoutSer.blacklist;
 
 @Component
 public class JwtUtil {
@@ -16,6 +20,7 @@ public class JwtUtil {
 
     // Token 有效期：24小时
     private final long EXPIRATION = 1000 * 60 * 60 * 24;
+    private LocalDateTime localDateTime = LocalDateTime.now();
 
     // 生成 Token
     public String generateToken(String username) {
@@ -40,6 +45,9 @@ public class JwtUtil {
     // 验证 Token 是否有效
     public boolean validateToken(String token) {
         try {
+            if(blacklist.contains(token)){
+return false;
+            }
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -49,4 +57,7 @@ public class JwtUtil {
             return false;
         }
     }
+
+    //clear token , remove. make it invalid
+
 }
