@@ -62,7 +62,7 @@ public class ProductRepo {
     }
 
     public ProductSummaryDTO productSearchrepo(Long id){
-        ProductSummaryDTO productSummaryDTO = null;
+        ProductSummaryDTO productSummaryDTO = null; //
         try {
             String sql ="select * from products where id = ?";
             productSummaryDTO = jdbcTemplate.queryForObject(sql, (resultSet, rownum) -> {
