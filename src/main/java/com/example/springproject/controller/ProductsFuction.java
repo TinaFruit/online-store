@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/product")
 public class ProductsFuction {
 
     //display getmapping 商品展示  // 数据库： 分页 + 索引优化
@@ -26,7 +27,7 @@ public class ProductsFuction {
     @Autowired
     private ProductSer ProductSer;
 
-    @GetMapping("/product/display")
+    @GetMapping("/display")
     public ResponseEntity<?> productDisaplay(@RequestParam(defaultValue = "1") int page,  @RequestParam(defaultValue = "10")  int size){
         page =page-1;
         List<ProductSummaryDTO> maps = ProductSer.disaplaySer(page, size);
@@ -35,7 +36,7 @@ public class ProductsFuction {
     }
 
     //crud:
-    @PostMapping("/product/add")
+    @PostMapping("/add")
     public ResponseEntity<String> productAdd(@Valid @RequestBody ProductAdminDTO productAdminDTO){
        if(ProductSer.productAddSer(productAdminDTO)){
            return ResponseEntity.ok("add successfully");
@@ -43,7 +44,7 @@ public class ProductsFuction {
         return ResponseEntity.status(500).body("failed to Add");
     }
 
-    @GetMapping("/product/remove")
+    @GetMapping("/remove")
     public ResponseEntity<String> productRemove(@RequestParam Long id){
         boolean b = ProductSer.productRemoveSer(id);
         if(b){
@@ -51,7 +52,7 @@ public class ProductsFuction {
         }
         return  ResponseEntity.status(500).body("failed to remove");
     }
-    @PutMapping("/product/update")
+    @PutMapping("/update")
     public ResponseEntity<String> productUpdate(@RequestParam Long id, BigDecimal price){
         boolean b = ProductSer.productUpdateSer(id,price);
         if(b){
@@ -61,7 +62,7 @@ public class ProductsFuction {
         return  ResponseEntity.status(500).body("failed to update");
     }
 
-    @GetMapping("/product/search")
+    @GetMapping("/search")
     public ResponseEntity<?> productSearch(@RequestParam Long id){
         System.out.println("查询id: " + id);
         ProductSummaryDTO productSummaryDTO = ProductSer.productSearchSer(id);
