@@ -17,9 +17,9 @@ public class ProductAdminDTO {
     private String category;         // 商品分类（电子/服装/食品等）
     private String imageUrl;         // 商品图片
     private String status;           // ACTIVE / INACTIVE / OUT_OF_STOCK
-    @DateTimeFormat
+    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
     private LocalDateTime createdAt;
-    @DateTimeFormat
+    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
     private LocalDateTime updatedAt;
     private Long sellerId;           // 卖家ID（Mini Amazon有第三方卖家）
 
