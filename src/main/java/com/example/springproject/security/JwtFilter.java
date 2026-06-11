@@ -16,7 +16,9 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-
+//    你项目里已经有 JwtFilter 了，
+//    它每次请求都把用户信息存进 SecurityContextHolder，
+//    所以在 Controller 里直接用 Authentication 拿就行：
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -67,4 +69,10 @@ public class JwtFilter extends OncePerRequestFilter {
         // 6. 放行，继续走后面的流程
         filterChain.doFilter(request, response);
     }
+
+    //登陆流程
+    //1. 用户输入 username + password
+    //2. 查数据库验证密码
+    //3. 同时取出 role          ← 这步要确认有没有
+    //4. 生成 JWT token 返回给客户端
 }
