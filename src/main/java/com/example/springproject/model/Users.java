@@ -21,6 +21,7 @@ public class Users {
     @NotBlank
     private String password;
     private String updatedPassword;
+    private String role;
 
     public Users(){}
 
@@ -70,5 +71,13 @@ public class Users {
 
     public void setUpdatedPassword(String updatedPassword) {
         this.updatedPassword = updatedPassword;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
