@@ -44,7 +44,9 @@ public class Login {
                     new UsernamePasswordAuthenticationToken(
                             user.getUserName(),
                             user.getPassword()));
-            String token = jwtUtil.generateToken(authenticate.getName());//  // 生成 Token
+
+            String role = authenticate.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");; //checking
+            String token = jwtUtil.generateToken(authenticate.getName(),role);//  // 生成 Token
             return ResponseEntity.ok(new LoginResponse(token,authenticate.getName()));
         }catch (Exception e){
             return ResponseEntity.status(401).body("登陆失败，用户名不对 或者 token 不对");

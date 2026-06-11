@@ -2,7 +2,6 @@ package com.example.springproject.controller;
 
 import com.example.springproject.model.CartItemsDTO;
 import com.example.springproject.model.CartJoinProductDTO;
-import com.example.springproject.repository.CartRepository;
 import com.example.springproject.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
