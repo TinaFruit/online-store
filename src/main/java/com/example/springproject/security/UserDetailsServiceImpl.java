@@ -30,6 +30,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         Users u = new Users();
                         u.setUserName(rs.getString("user_name"));
                         u.setPassword(rs.getString("password"));
+                        u.setRole(rs.getString("role"));
                         return u;
                     }
             );
@@ -40,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 告诉 Spring Security：这个用户的用户名、密码、角色是什么
         return User.withUsername(dbUser.getUserName())
                 .password(dbUser.getPassword())
-                .roles("USER")
+                .roles(dbUser.getRole()) // 改这里，从数据库取
                 .build();
     }
 
