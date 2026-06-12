@@ -1,7 +1,9 @@
 package com.example.springproject.repository;
 
+import com.example.springproject.model.OrderDetailDTO;
 import com.example.springproject.model.ProductAdminDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -11,10 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Repository
 public class OrderRepository {
@@ -167,16 +167,183 @@ public class OrderRepository {
 
     }
 
-    public void amendentRepo() {
+    //追加订单 1 业务逻辑可选
+    //退货模块 1 状态流转
+    //更新订单 1 状态更新、事务
+    //查询订单 1 普通用户仅自己订单，管理员查看所有
+    @Transactional
+    public boolean amendentRepo(List<HashMap<String, Integer>> products, int orderId) {  // productId + quantity +order id
+        //orderDTO
+        //  验证管理员权限）
+        //1检查订单存在 --》404 no found
+        //2.order status should be "PENDING", OTHERWISE not allowed
+        //3. stock = stock + ?
+        //4. order_detail + order
+
+        //1 检查订单存在 + 2.check "pending" ---有status的话，就一定存在
+        String sql ="select status from neworders where order_id = ?";
+        String status;
+        try{
+            status=jdbcTemplate.queryForObject(sql, String.class, orderId);
+        }catch (EmptyResultDataAccessException e){
+            throw new RuntimeException("404 NO FOUND");
+        }
+        // 2.2check "pending"
+        if(!status.equals("PENDING")){throw new IllegalStateException("the order is not pending, the status is "+status);}
+
+        //get quantity, productid and total price
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (HashMap<String, Integer> product: products){
+            Integer productid = product.get("product_id");
+            Integer quantity = product.get("quantity");
+            String sqln = "select price from products where id = ?";
+            try{
+            BigDecimal singlePrice = jdbcTemplate.queryForObject(sqln, BigDecimal.class, productid);
+            //get total price
+            totalPrice = totalPrice.add(singlePrice.multiply(BigDecimal.valueOf(quantity)));
+
+            }catch (Exception e){
+                throw  new RuntimeException("failed to update stock_quantity");
+            }
+
+            // 3. stock = stock -? ?
+            String sql2 ="update products set stock_quantity = stock_quantity - ? where id = ? and stock_quantity >= ?";
+            int update = jdbcTemplate.update(sql2, quantity, productid,quantity); //注意防止超卖 and stock_quantity > ?"
+            if(update <=0 ){throw new RuntimeException("failed to update");}
+
+            //update neworder_detail table
+            String sql4 ="update neworder_detail set quantity = quantity+?, updated_at = now() where order_id = ? and product_id = ?";
+            int update1 = jdbcTemplate.update(sql4, quantity, orderId, productid);
+            //⚠️：如果update1 = 0 可能是新产品，需要添加
+            if(update1 == 0){
+                String sql5 ="insert into neworder_detail (order_id, product_id, quantity, created_at,updated_at)values (?, ?, ?, now(), now())";
+                int update2 = jdbcTemplate.update(sql5, orderId, productid,quantity);
+                if(update2 <=0 ){throw new RuntimeException("failed to insert");}
+            }
+
+        }
+        // 4. order+ order_detail
+        String sql3 ="update neworders set total_price = total_price + ? where order_id = ? ";
+        int update = jdbcTemplate.update(sql3, totalPrice, orderId);
+        if(update <=0){throw new RuntimeException("failed to update");}
+
+        return true;
+
     }
 
-    public void preturnProductsRepo() {
+    @Transactional
+    public boolean returnProductsRepo(int orderId) {
+
+        // 1. 检查订单存在 + 拿当前状态
+        String sql = "select status from neworders where order_id = ?";
+        String status;
+        try {
+            status = jdbcTemplate.queryForObject(sql, String.class, orderId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+
+        // 2. 只有已支付/已发货/已完成的订单才能退货
+        if (!Set.of("PAID", "SHIPPED", "COMPLETED").contains(status)) {
+            throw new IllegalStateException("Order cannot be returned, current status: " + status);
+        }
+
+        // 3. 恢复库存 —— 遍历该订单的所有商品明细
+        String detailSql = "select product_id, quantity from neworder_detail where order_id = ?";
+        List<Map<String, Object>> details = jdbcTemplate.queryForList(detailSql, orderId);
+
+        for (Map<String, Object> detail : details) {
+            Integer productId = (Integer) detail.get("product_id");
+            Integer quantity = (Integer) detail.get("quantity");
+
+            String stockSql = "update products set quantity_stock = quantity_stock + ? where id = ?";
+            int stockUpdated = jdbcTemplate.update(stockSql, quantity, productId);
+            if (stockUpdated <= 0) {
+                throw new IllegalStateException("Failed to restore stock for product: " + productId);
+            }
+        }
+
+        // 4. 更新订单状态为RETURNED
+        String updateSql = "update neworders set status = 'RETURNED', updated_at = now() where order_id = ?";
+        int updated = jdbcTemplate.update(updateSql, orderId);
+        if (updated <= 0) {
+            throw new IllegalStateException("Failed to update order status");
+        }
+
+        return true;
     }
 
-    public void updateOrdersRepo() {
+    @Transactional
+    public boolean updateOrdersRepo(int orderId, String newStatus) {
+
+        String sql = "select status from neworders where order_id = ?";
+        String currentStatus;
+        try {
+            currentStatus = jdbcTemplate.queryForObject(sql, String.class, orderId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+
+        Map<String, Set<String>> allowedTransitions = Map.of(
+                "PENDING", Set.of("PAID"),
+                "PAID", Set.of("SHIPPED"),
+                "SHIPPED", Set.of("COMPLETED")
+        );
+
+        if (!allowedTransitions.getOrDefault(currentStatus, Set.of()).contains(newStatus)) {
+            throw new IllegalStateException(
+                    "Cannot change status from " + currentStatus + " to " + newStatus);
+        }
+
+        String updateSql = "update neworders set status = ?, updated_at = now() where order_id = ?";
+        int updated = jdbcTemplate.update(updateSql, newStatus, orderId);
+        if (updated <= 0) {
+            throw new IllegalStateException("Failed to update order status");
+        }
+
+        return true;
     }
 
-    public void searchOderRepo() {
+    public  List<OrderDetailDTO> searchOrderRepo(String username) { //based on user id , order inner join order details
+        //get userid by username
+        String sql1 = "select id from users where user_name = ? ";
+        Integer userId = jdbcTemplate.queryForObject(sql1, Integer.class, username);
 
+        //1.check order existence --> userid
+        String sql = "select n.order_id, n.user_id, n.total_price, n.status, " +
+                "n.created_at as order_created_at, " +
+                "d.product_id, d.product_name, d.price, d.image_url, d.quantity, " +
+                "d.created_at as detail_created_at " +
+                "from neworders n join neworder_detail d on n.order_id = d.order_id " +
+                "where n.user_id = ?";
+        List<OrderDetailDTO> orderlist ;
+        try {
+            orderlist = jdbcTemplate.query(sql, (rs, row) -> {
+                OrderDetailDTO dto = new OrderDetailDTO();
+
+                dto.setOrderId(rs.getInt("order_id"));
+                dto.setUserId(rs.getInt("user_id"));
+                dto.setTotalPrice(rs.getBigDecimal("total_price"));
+                dto.setStatus(rs.getString("status"));
+
+                Timestamp orderCreated = rs.getTimestamp("order_created_at");
+                dto.setOrderCreatedAt(orderCreated != null ? orderCreated.toLocalDateTime() : null);
+
+                dto.setProductId(rs.getInt("product_id"));
+                dto.setProductName(rs.getString("product_name"));
+                dto.setPrice(rs.getBigDecimal("price"));
+                dto.setImageUrl(rs.getString("image_url"));
+                dto.setQuantity(rs.getInt("quantity"));
+
+                Timestamp detailCreated = rs.getTimestamp("detail_created_at");
+                dto.setDetailCreatedAt(detailCreated != null ? detailCreated.toLocalDateTime() : null);
+
+                return dto;
+            }, userId);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to search orders", e);
+        }
+        //2.display all detals
+       return orderlist;
     }
 }
