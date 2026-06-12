@@ -1,5 +1,6 @@
 package com.example.springproject.controller;
 
+import com.example.springproject.model.OrderDetailDTO;
 import com.example.springproject.security.JwtUtil;
 import com.example.springproject.service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -24,7 +26,6 @@ public class OrderController {
     public ResponseEntity<String> putOrder(@RequestBody List<HashMap<String, Integer>> productLists, Authentication auth){
         try {
             boolean b = orderService.putOrderServ(productLists, auth);
-            if (b) return ResponseEntity.ok("下单成功");
             return ResponseEntity.status(500).body("下单失败");
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage()); // "库存不足" 等错误信息
@@ -73,4 +74,65 @@ public class OrderController {
 
     }
 
+    @PutMapping("/admendent/{orderId}")
+    public ResponseEntity<String>  amendent(@RequestBody List<HashMap<String, Integer>> productLists, @PathVariable int orderId){
+        boolean b = orderService.amendentServ(productLists,orderId);
+        if(b) return ResponseEntity.ok("success added ");
+        return ResponseEntity.status(500).body("failed to adment");
+    }
+
+
+    @PostMapping("")
+    public void returnProductsRepo(@RequestHeader("Authentication") String tokenwithprefix) {
+        String token = tokenwithprefix.substring(7);
+        String role = jwtUtil.getRole(token);//user or admin
+        //1.只有admin才能删订单
+        if(role == null || !role.equals("admin")){//admin 删订单是不检查 user_id 的，任何订单都能删。
+
+        }
+    }
+    @PostMapping("/return/{orderId}")
+    public ResponseEntity<String> returnProductsRepso(
+            @PathVariable("orderId") int orderId,
+            Authentication authentication) {
+
+        // 权限校验:只有admin能退货
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            return ResponseEntity.status(403).body("Only admin can process returns");
+        }
+
+        boolean result = orderService.returnProductsServ(orderId);
+        if (result) {
+            return ResponseEntity.ok("Order returned successfully");
+        }
+        return ResponseEntity.status(500).body("Failed to process return");
+    }
+
+    @PutMapping("/status/{orderId}")
+    public ResponseEntity<String> updateOrderStatus(
+            @PathVariable("orderId") int orderId,
+            @RequestBody Map<String, String> body) {
+
+        String newStatus = body.get("status");
+        boolean result = orderService.updateOrdersServ(orderId, newStatus);
+
+        if (result) {
+            return ResponseEntity.ok("Order status updated to " + newStatus);
+        }
+        return ResponseEntity.status(500).body("Failed to update order status");
+    }
+
+
+    @GetMapping("/searchOrder")
+    public ResponseEntity<?> searchOderByusername(Authentication auth){
+        String name = auth.getName();
+        List<OrderDetailDTO> orderDetailDTOS = orderService.searchOderServ(name);
+        if (orderDetailDTOS.isEmpty()){
+            return ResponseEntity.status(409).body("empty"); }
+        return ResponseEntity.ok(  orderDetailDTOS) ;
+
+    }
 }

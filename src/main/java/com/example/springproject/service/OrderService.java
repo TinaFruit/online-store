@@ -1,5 +1,6 @@
 package com.example.springproject.service;
 
+import com.example.springproject.model.OrderDetailDTO;
 import com.example.springproject.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,16 +28,21 @@ public class OrderService {
        return orderRepository.deleteOrderRepo(orderId);
     }
 
-    public void amendentServ() {
+    public boolean amendentServ(List<HashMap<String, Integer>> products, int orderId) {
+        return orderRepository.amendentRepo(products,orderId);
     }
 
-    public void preturnProductsServ() {
+    public boolean returnProductsServ(int orderId) {
+        return orderRepository.returnProductsRepo(orderId);
     }
 
-    public void updateOrdersServ() {
+    public boolean updateOrdersServ(int orderId, String newStatus) {
+        return orderRepository.updateOrdersRepo(orderId, newStatus);
     }
 
-    public void searchOderServ() {
+    public  List<OrderDetailDTO>  searchOderServ(String username) {
+
+        return orderRepository.searchOrderRepo(username);
 
     }
 }
