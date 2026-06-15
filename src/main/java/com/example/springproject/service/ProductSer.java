@@ -1,5 +1,6 @@
 package com.example.springproject.service;
 
+import com.example.springproject.exeption.AppException;
 import com.example.springproject.model.ProductAdminDTO;
 import com.example.springproject.model.ProductSummaryDTO;
 import com.example.springproject.repository.ProductRepo;
@@ -19,7 +20,7 @@ public class ProductSer {
     public List<ProductSummaryDTO> disaplaySer(int page, int size){
 
         List<Map<String, Object>> maps = productRepo.disaplayRepo(page, size);
-        if (maps == null) return null;
+        if (maps == null || maps.isEmpty()) throw new AppException(404, "没有商品");
         List<ProductSummaryDTO> productSummaryDTOS = new ArrayList<>();
         for(Map<String, Object> map : maps){
 
@@ -42,6 +43,7 @@ public class ProductSer {
 
             productSummaryDTOS.add(productSummaryDTO);
         }
+        if (productSummaryDTOS.isEmpty()) throw new AppException(404, "no itesm, failed to display");
         return productSummaryDTOS;
     }
 

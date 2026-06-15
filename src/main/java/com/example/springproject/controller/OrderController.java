@@ -24,12 +24,8 @@ public class OrderController {
 //    Authentication auth — 用来获取已登录用户的信息，登录之后的请求用：
     @PostMapping("/putOrder")
     public ResponseEntity<String> putOrder(@RequestBody List<HashMap<String, Integer>> productLists, Authentication auth){
-        try {
             boolean b = orderService.putOrderServ(productLists, auth);
-            return ResponseEntity.status(500).body("下单失败");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage()); // "库存不足" 等错误信息
-        }
+            return ResponseEntity.ok("下单成功");
 
 // 客户 只需要提供
 // product_id      INT, ---- 要✅
