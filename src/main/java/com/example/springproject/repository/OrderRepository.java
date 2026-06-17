@@ -256,7 +256,7 @@ public class OrderRepository {
             Integer productId = (Integer) detail.get("product_id");
             Integer quantity = (Integer) detail.get("quantity");
 
-            String stockSql = "update products set quantity_stock = quantity_stock + ? where id = ?";
+            String stockSql = "update products set stock_quantity = stock_quantity + ? where id = ?";
             int stockUpdated = jdbcTemplate.update(stockSql, quantity, productId);
             if (stockUpdated <= 0) {
                 throw new IllegalStateException("Failed to restore stock for product: " + productId);

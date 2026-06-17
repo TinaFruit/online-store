@@ -35,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/hello").permitAll() // 这3个接口不拦截
+                        .requestMatchers("/login", "/register", "/hello", "/swagger-ui/**", "/v3/api-docs/**","/v3/api-docs" ).permitAll() // 这3个接口不拦截
                         .anyRequest().authenticated()                        // 其余anyRequest都要authenticated登录
                 )
                 .csrf(csrf -> csrf.disable()) // 测试时候 可以disable CSRF（Cross-Site Request Forgery，跨站请求伪造）是针对 Cookie 登录 的攻击

@@ -1,12 +1,10 @@
 package com.example.springproject.exeption;
 
-public class AppException extends RuntimeException {
+public class UpdatedFailed extends RuntimeException{
     private int code;
-
-    public AppException(int code, String message) {
+    public UpdatedFailed(int code, String message){
         super(message);
-        this.code = code;
-
+        this.code=code;
     }
 
     public int getCode() {

@@ -1,13 +1,11 @@
 package com.example.springproject.repository;
 
+import com.example.springproject.mapper.CartMapper;
 import com.example.springproject.model.CartItemsDTO;
 import com.example.springproject.model.CartJoinProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +15,8 @@ public class CartRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private CartMapper cartMapper;
     public boolean add(CartItemsDTO cartItemsDTO){
         //before add,check
         // ✅ 应该先检查是否存在
@@ -56,23 +56,24 @@ public class CartRepository {
     }
     public CartJoinProductDTO search(int id){
         //和之前的product 一样的逻辑
-        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.id = ?";
-        CartJoinProductDTO cartJoinProductDTO = jdbcTemplate.queryForObject(sql, (rs, row) -> new CartJoinProductDTO(
-                rs.getLong("id"),
-                rs.getLong("product_id"),
-                rs.getString("product_name"),
-                rs.getString("image_url"),
-                rs.getBigDecimal("price"),
-                rs.getInt("quantity"),
-                rs.getInt("selected")
-        ), id);
-        return cartJoinProductDTO;
+//        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.id = ?";
+//        CartJoinProductDTO cartJoinProductDTO = jdbcTemplate.queryForObject(sql, (rs, row) -> new CartJoinProductDTO(
+//                rs.getLong("id"),
+//                rs.getLong("product_id"),
+//                rs.getString("product_name"),
+//                rs.getString("image_url"),
+//                rs.getBigDecimal("price"),
+//                rs.getInt("quantity"),
+//                rs.getInt("selected")
+//        ), id);
+        return  cartMapper.searchCart(id);
     }
 
     public  List<Map<String, Object>> searchList(int userid){
         //和之前的product 一样的逻辑
-        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.user_id = ?";
-         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql,userid);
-         return maps;
+//        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.user_id = ?";
+//         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql,userid);
+
+         return  cartMapper.maps(userid);
     }
 }

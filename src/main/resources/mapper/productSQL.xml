@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.springproject.mapper.ProductMapper">
+
+<select id="mapss" resultType="map">
+    select * from products limit #{size} offset #{page}
+    </select>
+
+    <insert id="addProduct">
+        insert into products (product_name, description,price, stock_quantity,category,image_url,status, created_at, updated_at, seller_id)
+        values(#{productName}, #{description}, #{price}, #{stockQuantity}, #{category}, #{imageUrl}, #{status}, now(),now(),#{sellerId})
+    </insert>
+
+    <resultMap id="ccmapa" type="com.example.springproject.model.ProductSummaryDTO">
+        <id column="id" property="id"/>
+        <result column="product_Name" property="productName"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="catagory" property="catagory"/>
+        <result column="image_url" property="imageUrl"/>
+    </resultMap>
+
+    <select id="productSearch" resultMap="ccmapa">
+        select * from products where id = #{id}
+    </select>
+
+    <delete id="delete">
+        delete from products where id = #{id}
+    </delete>
+
+    <update id="update">
+        update products set price = #{price} where id = #{id}
+    </update>
+
+</mapper>
+
+
+
