@@ -13,3 +13,10 @@ spring:
       org:
         springframework:
           security=DEBUG:
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

@@ -1,12 +1,11 @@
 package com.example.springproject.exeption;
 
-public class AppException extends RuntimeException {
+public class DuplicateRegisterException extends RuntimeException{
     private int code;
 
-    public AppException(int code, String message) {
+    public DuplicateRegisterException(int code, String message){
         super(message);
-        this.code = code;
-
+        this.code=code;
     }
 
     public int getCode() {
