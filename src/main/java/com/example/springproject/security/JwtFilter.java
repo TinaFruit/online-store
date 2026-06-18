@@ -31,6 +31,15 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 0. 白名单路径直接放行
+        String path = request.getRequestURI();
+        if (path.equals("/login") || path.equals("/register") || path.equals("/hello")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        // 开始
         // 1. 从 Header 取出 Token
         String authHeader = request.getHeader("Authorization");
 

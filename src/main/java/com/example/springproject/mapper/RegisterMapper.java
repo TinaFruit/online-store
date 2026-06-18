@@ -7,6 +7,4 @@ public interface RegisterMapper {
 
     int add(@Param("username") String username, @Param("password") String password);
     Integer checkDuplicatedRegister(@Param("username") String username);
-
-
 }

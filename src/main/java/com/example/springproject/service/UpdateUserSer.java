@@ -3,7 +3,6 @@ package com.example.springproject.service;
 import com.example.springproject.model.Users;
 import com.example.springproject.repository.CommonUtil;
 import com.example.springproject.repository.UpdateUserRepo;
-import com.example.springproject.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,9 +30,9 @@ public class UpdateUserSer {
     }
 
     public boolean updateUserPasswordOrEmailServ(Users user){
-        String hashpassword = commonUtil.checkUserAndGetPassword(user.getUserName());
+        String hashpassword = commonUtil.checkUserAndGetPassword(user.getUserName()); //mock
         if (hashpassword == null) return false;
-        boolean matches = passwordEncoder.matches(user.getPassword(), hashpassword);
+        boolean matches = passwordEncoder.matches(user.getPassword(), hashpassword); //mock
         if(!matches){
             return false;
         }
@@ -41,7 +40,7 @@ public class UpdateUserSer {
         String encode = passwordEncoder.encode(user.getUpdatedPassword());
         user.setUpdatedPassword(encode);
         //update password + email
-        return updateUserRepo.updateUserPasswordOrEmailRepo(user);
+        return updateUserRepo.updateUserPasswordOrEmailRepo(user); //mock
     }
 
 }
