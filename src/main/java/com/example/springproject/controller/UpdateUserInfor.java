@@ -15,7 +15,7 @@ public class UpdateUserInfor {
     private UpdateUserSer updateUserSer;
 
     @PutMapping("/login/updateUserName")
-    public ResponseEntity<String> updateUserNmae(@RequestBody Users user){
+    public ResponseEntity<String> updateUserName(@RequestBody Users user){
         if( updateUserSer.updateUserNameSer(user)){
             return ResponseEntity.ok("updated successfully");
         }
@@ -28,9 +28,5 @@ public class UpdateUserInfor {
             return ResponseEntity.ok("updated successfully");
         }
         return ResponseEntity.status(401).body("update failed");
-
-
     }
-
-
-}
+    }
