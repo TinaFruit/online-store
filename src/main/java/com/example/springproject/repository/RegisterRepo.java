@@ -24,7 +24,7 @@ public class RegisterRepo {
         return update>0;
     }
 
-    public Boolean checkDuplicatedRegister(Users user){
+    public boolean checkDuplicatedRegister(Users user){
 //        String sql = "select count(*) from Users where user_name = ?";
 //        Integer result = jdbcTemplate.queryForObject(sql,Integer.class,user.getUserName());
         Integer  result = registerMapper.checkDuplicatedRegister(user.getUserName());

@@ -3,7 +3,6 @@ package com.example.springproject.model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
@@ -79,5 +78,18 @@ public class Users {
 
     public void setRole(String role) {
         this.role = role;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Users users = (Users) o;
+        return Objects.equals(userName, users.userName) &&
+                Objects.equals(password, users.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, password);
     }
 }

@@ -112,6 +112,13 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<scope>test</scope> <!-- ← 只在 src/test/java 里有效-->
+		</dependency>
+
 	</dependencies>
 
 <build>
