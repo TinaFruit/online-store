@@ -19,7 +19,7 @@ public class ProductRepo {
     @Autowired
     public ProductMapper productMapper;
 
-    public List<Map<String, Object>> disaplayRepo(int page, int size){
+    public List<Map<String, Object>> displayRepo(int page, int size){
 //        String sql ="select * from products limit ? offset ?";
 //        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql,size,page);
         List<Map<String, Object>> mapss = productMapper.mapss(size, page);

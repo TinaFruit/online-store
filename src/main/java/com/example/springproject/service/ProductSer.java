@@ -4,7 +4,6 @@ import com.example.springproject.exeption.AppException;
 import com.example.springproject.model.ProductAdminDTO;
 import com.example.springproject.model.ProductSummaryDTO;
 import com.example.springproject.repository.ProductRepo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -22,9 +21,6 @@ public class ProductSer {
     private ProductRepo productRepo;
     @Autowired
     private StringRedisTemplate redis;
-    //查：
-    //删
-    //存：
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     //
@@ -43,9 +39,25 @@ public class ProductSer {
 
         }
     }
-    public List<ProductSummaryDTO> disaplaySer(int page, int size) {
-        //check redis
+    public List<ProductSummaryDTO> displaySer(int page, int size) {
+        //1.check redis
         String key ="product:"+page+":"+size;
+        List<ProductSummaryDTO> cached = getAndDeserializeFromCache(key); //cache has data , doesn't have the data
+        if(cached != null){
+           return cached;
+        }
+
+        //2.check database
+        List<ProductSummaryDTO> productSummaryDTOS = fetchAndMapFromDb(page, size);
+
+        //3.saveToCache
+        saveToCache(key,productSummaryDTOS);
+        return productSummaryDTOS;
+    }
+
+
+    /// check redis
+    public List<ProductSummaryDTO> getAndDeserializeFromCache (String key){
         String cached = redis.opsForValue().get(key);
         if(cached != null){
             try {
@@ -53,22 +65,24 @@ public class ProductSer {
             }catch (Exception e) {
                 throw new RuntimeException("cached issue");
             }
-
         }
+        return null;
+    }
 
-        //original codes
-        List<Map<String, Object>> maps = productRepo.disaplayRepo(page, size);
-        if (maps == null || maps.isEmpty()) throw new AppException(404, "没有商品");
+    /// fetchAndMapFromDb
+    public List<ProductSummaryDTO> fetchAndMapFromDb(int page, int size){
+        List<Map<String, Object>> maps = productRepo.displayRepo(page, size); //mock
+        if (maps == null || maps.isEmpty()) throw new AppException(404, "no found itesms");
+
         List<ProductSummaryDTO> productSummaryDTOS = new ArrayList<>();
-        for(Map<String, Object> map : maps){
+        for (Map<String, Object> map : maps) {
 
-            Long id = ((Number) map.get("id")).longValue(); //❌ MySQL返回的id可能是Integer不是Long，直接强转会报错 Long id = (Long) map.get("id");
+            Long id = ((Number) map.get("id")).longValue(); //❌ 要用(Number)转类型---MySQL返回的id可能是Integer不是Long，直接强转会报错 Long id = (Long) map.get("id");
             String productName = map.get("product_name").toString();
             String description = map.get("description").toString();
             BigDecimal price1 = (BigDecimal) map.get("price");
             String category1 = map.get("category").toString();
             String imageUrl1 = map.get("image_url").toString();
-
 
             ProductSummaryDTO productSummaryDTO = new ProductSummaryDTO(
                     id,
@@ -80,10 +94,12 @@ public class ProductSer {
             );
             productSummaryDTOS.add(productSummaryDTO);
         }
-        if (productSummaryDTOS.isEmpty()) throw new AppException(404, "no itesm, failed to display");
-        // 存入 Redis，1分钟过期（短一点，保证数据不会太旧）
-        redis.opsForValue().set(key,toJson( productSummaryDTOS),10, TimeUnit.MINUTES);
         return productSummaryDTOS;
+    }
+
+    ///saveToCache
+    public void saveToCache(String key, Object data){
+        redis.opsForValue().set(key,toJson(data),10, TimeUnit.MINUTES);
     }
 
     public boolean productAddSer(ProductAdminDTO productAdminDTO){
@@ -114,7 +130,7 @@ public class ProductSer {
         ProductSummaryDTO productSummaryDTO = productRepo.productSearchrepo(id);
 
         // add into redis
-        redis.opsForValue().set(key,toJson(productSummaryDTO),6,TimeUnit.HOURS);
+        saveToCache(key,productSummaryDTO);
         return productSummaryDTO;
     }
 
