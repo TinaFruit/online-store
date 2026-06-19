@@ -21,5 +21,9 @@ public class HanderException {
     public ResponseEntity<?> AppException(AppException ap){
         return ResponseEntity.status(ap.getCode()).body(ap.getMessage());
     }
+    @ExceptionHandler(NoAnydisplayException.class)
+    public ResponseEntity<?> NoAnydisplayException(AppException ap){
+        return ResponseEntity.status(ap.getCode()).body(ap.getMessage());
+    }
 
 }
