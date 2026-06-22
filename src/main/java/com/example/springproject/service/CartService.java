@@ -36,7 +36,7 @@ public class CartService {
         for (Map<String, Object> map : maps) {
             CartJoinProductDTO dto = new CartJoinProductDTO(
                     ((Number) map.get("id")).longValue(),
-                    ((Number) map.get("product_id")).longValue(),  // ← 改这里
+                    ((Number) map.get("product_id")).longValue(),
                     map.get("product_name").toString(),
                     map.get("image_url").toString(),
                     (BigDecimal) map.get("price"),
@@ -55,7 +55,7 @@ public class CartService {
         for (Map<String, Object> map : maps) {
             CartJoinProductDTO dto = new CartJoinProductDTO(
                     ((Number) map.get("id")).longValue(),
-                    ((Number) map.get("product_id")).longValue(),  // ← 改这里
+                    ((Number) map.get("product_id")).longValue(),
                     map.get("product_name").toString(),
                     map.get("image_url").toString(),
                     (BigDecimal) map.get("price"),

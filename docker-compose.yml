@@ -1,0 +1,106 @@
+# ============================================================
+# docker-compose.yml —— 编排"应用 + MySQL + Redis"三个服务
+# 一条命令 `docker compose up` 就能把这三个容器按这里定义的方式一起拉起来
+# ============================================================
+
+services:
+
+  # ===== 服务一：你的 Spring Boot 应用 =====
+  app:
+    # 不是去下载现成镜像，而是用当前目录下的 Dockerfile 自己构建
+    build: .
+
+    # 给容器起个好认的名字，方便在 Docker Desktop / docker ps 里一眼认出来
+    container_name: online-store-app
+
+    # 端口映射，格式："宿主机端口:容器内部端口"
+    # 容器内部 Spring Boot 跑在 8080，映射到电脑的 8080，这样才能用浏览器访问 localhost:8080
+    ports:
+      - "8080:8080"
+
+    # 环境变量：告诉应用"去哪儿连数据库、连 Redis"
+    # 对应 application.yaml 里写的 ${DB_HOST:localhost} 这种写法——优先读这里的环境变量
+    # 注意 DB_HOST 写的是 "mysql"，REDIS_HOST 写的是 "redis"
+    # 这两个不是随便起的名字，而是下面定义的两个服务的服务名
+    # Docker Compose 会自动给同一份 yml 里的所有服务建一个内部网络，服务名就能直接当域名用
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: test
+      DB_USERNAME: root
+      DB_PASSWORD: Eating42@@
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+    # 控制启动顺序：默认 Compose 是同时启动所有服务的，不会自动排队
+    # 这里强制要求：
+    #   - 必须等 mysql 真正"健康"了（不只是容器启动，而是真的能接受连接）才启动 app
+    #   - redis 只要容器跑起来就行，要求没那么严格
+    # service_healthy 这个判断依据，来自下面 mysql 服务里配置的 healthcheck
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # ===== 服务二：MySQL 数据库 =====
+  mysql:
+    # 不自己构建，直接用 Docker Hub 上官方现成的 MySQL 8.0 镜像
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+    container_name: online-store-mysql
+
+    # 给这个全新创建的 MySQL 设置它自己的初始密码和默认数据库
+    # 这个密码是这个容器自己的，跟你本地装的 MySQL（如果有的话）完全无关，是两个独立的数据库实例
+    # MYSQL_DATABASE: test 会让容器第一次启动时自动创建一个空的、叫 test 的数据库
+    environment:
+      MYSQL_ROOT_PASSWORD: Eating42@@
+      MYSQL_DATABASE: test
+
+    # 映射端口，方便用 DBeaver 等工具连接 localhost:3306 查看 Docker 里这个数据库的数据
+    # ⚠️ 如果本地电脑本身也装了 MySQL 且正在运行，这里可能会端口冲突（3306 被占用）
+    #    遇到这种情况可以改成 "3307:3306"，用 3307 避开冲突
+    ports:
+      - "3307:3306"
+
+    # 健康检查：每隔 5 秒，用 mysqladmin ping 这个命令探测一下"MySQL 真的能接受连接了吗"
+    # 最多重试 10 次，每次最多等 5 秒
+    # 只有探测成功，Docker 才会判定这个容器是 healthy（健康）状态
+    # 这个状态正是上面 app 服务里 condition: service_healthy 所依赖的判断条件
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pEating42@@" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    # 数据持久化：MySQL 真正存数据的路径是容器内部的 /var/lib/mysql
+    # 把它映射到一个叫 mysql_data 的、由 Docker 独立管理的存储区域（在文件最底部声明）
+    # 这样即使容器被删除重建，只要这个卷还在，数据就不会丢
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # ===== 服务三：Redis 缓存 =====
+  redis:
+    # 同样直接用官方现成镜像，alpine 版本体积更小
+    image: redis:7-alpine
+
+    container_name: online-store-redis
+
+    # 映射端口，方便用 RedisInsight 等工具连接查看
+    ports:
+      - "6379:6379"
+
+    # 数据持久化：Redis 真正存数据的路径是容器内部的 /data
+    volumes:
+      - redis_data:/data
+
+# ============================================================
+# 在文件最外层"注册"上面用到的两个数据卷的名字
+# mysql/redis 服务内部只是"使用"了 mysql_data / redis_data 这两个名字
+# 必须在这里正式声明它们的存在，Compose 才认得
+# ============================================================
+volumes:
+  mysql_data:
+  redis_data:
