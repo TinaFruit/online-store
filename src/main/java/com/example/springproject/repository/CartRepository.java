@@ -19,10 +19,10 @@ public class CartRepository {
     private CartMapper cartMapper;
     public boolean add(CartItemsDTO cartItemsDTO){
         //before add,check
-        // ✅ 应该先检查是否存在
-        String check = "SELECT COUNT(*) FROM cart_items WHERE user_id = ? AND product_id = ?";
-        int count = jdbcTemplate.queryForObject(check, Integer.class,
-                cartItemsDTO.getUserId(), cartItemsDTO.getProductId());
+//        String check = "SELECT COUNT(*) FROM cart_items WHERE user_id = ? AND product_id = ?";
+//        int count = jdbcTemplate.queryForObject(check, Integer.class,
+//                cartItemsDTO.getUserId(), cartItemsDTO.getProductId());
+        int count =  cartMapper.countCartItem(Math.toIntExact(cartItemsDTO.getUserId()), Math.toIntExact(cartItemsDTO.getProductId()));
 
         if (count > 0) {
             // 已存在 → 累加数量
