@@ -11,4 +11,5 @@ import java.util.Map;
 public interface CartMapper {
     CartJoinProductDTO searchCart(@Param("id") int id);
     List<Map<String, Object>> maps(@Param("userid") int userid);
+    int countCartItem(@Param("userId") int userId, @Param("productId") int productId);
 }
