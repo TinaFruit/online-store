@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserMapper {
 
+    int checkUserId(@Param("username") String username);
     int deleteUser(@Param("username") String username);
     String checkPassword(@Param("username") String username);
 

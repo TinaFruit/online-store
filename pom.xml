@@ -55,17 +55,10 @@
 		</dependency>
 
 		<!-- security starter -->
-		<!--  下面会造成401 unauthorized 改成spring-security-crypto     -->
-    <dependency>
+     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
-
-
-<!--    <dependency>-->
-<!--        <groupId>org.springframework.security</groupId>-->
-<!--        <artifactId>spring-security-crypto</artifactId>-->
-<!--    </dependency>-->
 
 		<!--jwt-->
 		<dependency>
@@ -88,7 +81,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- @valid校验 -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
@@ -117,7 +110,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<scope>test</scope> <!-- ← 只在 src/test/java 里有效-->
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

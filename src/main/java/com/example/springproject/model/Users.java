@@ -6,9 +6,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
-//get set constructor tostring hashcode equal
-
-//@Service // 是 Spring 的 Bean 注解，放在 model/DTO 上是错的，Users 只是一个数据类，不需要任何注解。
 public class Users {
     @NotBlank(message="username cannot be empty or null")
     @Size(min=3, max=20,message="size should be 3-20 characters")

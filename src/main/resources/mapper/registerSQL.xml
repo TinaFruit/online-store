@@ -8,7 +8,6 @@
    insert into Users (user_name, password) values(#{username},#{password})
     </insert>
 
-
     <select id="checkDuplicatedRegister" resultType="Integer">
      select count(*) from Users where user_name = #{username}
     </select>

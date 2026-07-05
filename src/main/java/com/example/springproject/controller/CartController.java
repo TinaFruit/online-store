@@ -5,6 +5,7 @@ import com.example.springproject.model.CartJoinProductDTO;
 import com.example.springproject.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +17,13 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+    /***
+     * CartController is used for adding ,delete , upadte , search one or more items (item,quality)
+     * */
     @PostMapping("/add")
-    public ResponseEntity<?> add(@RequestBody CartItemsDTO cartItemsDTO) {
-        if (!cartService.add(cartItemsDTO)) return ResponseEntity.status(500).body("failed to add");
+    public ResponseEntity<?> add(@RequestBody CartItemsDTO cartItemsDTO, Authentication auth) {
+        String username =  auth.getName();
+        if (!cartService.add(cartItemsDTO, username)) return ResponseEntity.status(500).body("failed to add");
         return ResponseEntity.ok("success added");
     }
 
@@ -36,13 +41,14 @@ public class CartController {
     @GetMapping("/searchOne")
     public ResponseEntity<?> searchOne(@RequestParam int userid) {
         List<CartJoinProductDTO> result = cartService.searchOne(userid);
-        if (result == null || result.isEmpty()) return ResponseEntity.status(404).body("没搜索到");
+        if (result == null || result.isEmpty()) return ResponseEntity.status(404).body("no found");
         return ResponseEntity.ok(result);
     }
     @GetMapping("/searchAll")
-    public ResponseEntity<?> searchList(@RequestParam int userid) {
-        List<CartJoinProductDTO> result = cartService.searchList(userid);
-        if (result == null || result.isEmpty()) return ResponseEntity.status(404).body("没搜索到");
+    public ResponseEntity<?> searchList(Authentication auth) {
+        String username =  auth.getName();
+        List<CartJoinProductDTO> result = cartService.searchList(username);
+        if (result == null || result.isEmpty()) return ResponseEntity.status(404).body("no found");
         return ResponseEntity.ok(result);
     }
 }

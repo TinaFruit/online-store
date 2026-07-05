@@ -12,16 +12,14 @@ public class ProductAdminDTO {
     @NotBlank(message="must to offer productName")
     private String productName;
     private String description;
-    private BigDecimal price;        // 价格（必须！用BigDecimal避免精度问题）
+    private BigDecimal price;
     private Integer stockQuantity;
-    private String category;         // 商品分类（电子/服装/食品等）
-    private String imageUrl;         // 商品图片
-    private String status;           // ACTIVE / INACTIVE / OUT_OF_STOCK
-    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
+    private String category;
+    private String imageUrl;
+    private String status;
     private LocalDateTime createdAt;
-    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
     private LocalDateTime updatedAt;
-    private Long sellerId;           // 卖家ID（Mini Amazon有第三方卖家）
+    private Long sellerId;
 
     public ProductAdminDTO() {
     }

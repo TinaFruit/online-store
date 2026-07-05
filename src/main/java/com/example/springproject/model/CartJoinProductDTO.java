@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 
 public class CartJoinProductDTO {
     private Long cartItemId;
-//        @NotBlank(message="cannot be empty or null")// @NotBlank 只能用在 String 上
-    // Long 类型要用 @NotNull
      @NotNull
         private Long productId;
         private String productName;

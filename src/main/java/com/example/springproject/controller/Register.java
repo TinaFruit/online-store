@@ -16,15 +16,15 @@ public class Register {
     @Autowired
     private RegisterService registerServ;
 
-
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Users user){
-        //用户提供 username password,... userdetails
-        //数据库存入，密码要用Springsecurity自动调用的加密存入 -- 写在
-        //不能提供token 因为他只是注册
       registerServ.registerServ(user);
-       return ResponseEntity.ok("注册成功");
+       return ResponseEntity.ok("register successfully");
     }
+
+
+
+
+
 
 }

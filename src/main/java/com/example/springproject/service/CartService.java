@@ -1,5 +1,6 @@
 package com.example.springproject.service;
 
+import com.example.springproject.mapper.UserMapper;
 import com.example.springproject.model.CartItemsDTO;
 import com.example.springproject.model.CartJoinProductDTO;
 import com.example.springproject.repository.CartRepository;
@@ -18,8 +19,13 @@ public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserMapper userMapper;
 
-    public boolean add(CartItemsDTO cartItemsDTO){
+    public boolean add(CartItemsDTO cartItemsDTO, String username){
+
+        Long userId = ((Number)userMapper.checkUserId(username)).longValue();
+        cartItemsDTO.setUserId(userId);
         return cartRepository.add( cartItemsDTO);
     }
     public boolean delete(int id){
@@ -47,9 +53,9 @@ public class CartService {
         }
         return list;
     }
-    public List<CartJoinProductDTO> searchList(int userid) {
-
-        List<Map<String, Object>> maps = cartRepository.searchList(userid);
+    public List<CartJoinProductDTO> searchList(String username) {
+        int userId = userMapper.checkUserId(username);
+        List<Map<String, Object>> maps = cartRepository.searchList(userId);
 
         List<CartJoinProductDTO> list = new ArrayList<>();
         for (Map<String, Object> map : maps) {

@@ -3,6 +3,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.springproject.mapper.UserMapper">
+   <select id="checkUserId" resultType="Integer">
+       select id from users where user_name = #{username}
+   </select>
+
     <delete id="deleteUser">
         delete from users where user_Name= #{username}
     </delete>

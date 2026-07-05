@@ -26,8 +26,8 @@ public class DeleteUser {
 
 
            if(deleteUserSer.deleteUserSer(use)){
-               return ResponseEntity.ok("delete成功");
+               return ResponseEntity.ok("delete successfully");
            }
-           return ResponseEntity.status(500).body("操作失败 or 密码错误");
+           return ResponseEntity.status(500).body("failed");
     }
 }

@@ -6,9 +6,9 @@ public class ProductSummaryDTO {
     private Long id;
     private String productName;
     private String description;
-    private BigDecimal price;        // 价格（必须！用BigDecimal避免精度问题）
-    private String category;         // 商品分类（电子/服装/食品等）
-    private String imageUrl;         // 商品图片
+    private BigDecimal price;
+    private String category;
+    private String imageUrl;
 
     public ProductSummaryDTO() {
     }

@@ -23,7 +23,7 @@ public class ProductSer {
     private StringRedisTemplate redis;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    //
+
     public ProductSummaryDTO parseJson(String json){
          try{
            return objectMapper.readValue(json, ProductSummaryDTO.class);}
@@ -77,7 +77,7 @@ public class ProductSer {
         List<ProductSummaryDTO> productSummaryDTOS = new ArrayList<>();
         for (Map<String, Object> map : maps) {
 
-            Long id = ((Number) map.get("id")).longValue(); //❌ 要用(Number)转类型---MySQL返回的id可能是Integer不是Long，直接强转会报错 Long id = (Long) map.get("id");
+            Long id = ((Number) map.get("id")).longValue();
             String productName = map.get("product_name").toString();
             String description = map.get("description").toString();
             BigDecimal price1 = (BigDecimal) map.get("price");

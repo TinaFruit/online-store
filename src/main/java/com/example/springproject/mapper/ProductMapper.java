@@ -13,10 +13,10 @@ import java.util.Map;
 public interface ProductMapper {
 
     List<Map<String, Object>> mapss(@Param("size") int size, @Param("page") int page);
-    // 一个普通参数 → MyBatis 不知道叫什么名字 → 需要 @Param 告诉它
+
     ProductSummaryDTO productSearch(@Param("id") Long id);
 
-    // 一个对象 → MyBatis 直接从对象的 getter 找 → 不需要 @Param
+    // no need @Param, because MyBatis will find getter from ProductAdminDTO
     int addProduct(ProductAdminDTO productAdminDTO);
     int delete(@Param("id") Long id);
     int update(@Param("id") Long id,@Param("price") BigDecimal price);

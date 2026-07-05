@@ -7,7 +7,7 @@
 
     <resultMap id="cartMapperCartJoinProductDTO" type="com.example.springproject.model.CartJoinProductDTO">
         <id column="id" property="id"/>
-        <result column="product_id" property="productId"/>
+        <result column="id" property="productId"/>
         <result column="product_name" property="productName"/>
         <result column="image_url" property="imageUrl"/>
         <result column="price" property="price"/>

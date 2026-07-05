@@ -18,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        // 直接复用你原来的 SQL 逻辑
+
         String sql = "select * from Users where user_name = ?";
 
         Users dbUser = null;
@@ -35,13 +35,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     }
             );
         } catch (Exception e) {
-            throw new UsernameNotFoundException("用户不存在：" + username);
+            throw new UsernameNotFoundException("user is not exist：" + username);
         }
 
-        // 告诉 Spring Security：这个用户的用户名、密码、角色是什么
+        // Tell Spring Security：password, username, roles
         return User.withUsername(dbUser.getUserName())
                 .password(dbUser.getPassword())
-                .roles(dbUser.getRole()) // 改这里，从数据库取
+                .roles(dbUser.getRole())
                 .build();
     }
 

@@ -21,15 +21,12 @@ public class OrderController {
     private JwtUtil jwtUtil;
 
 //    AuthenticationManager — 用来验证用户名密码，登录的时候用：
-//    Authentication auth — 用来获取已登录用户的信息，登录之后的请求用：
+//    Authentication auth — used for retrieving userDetails, after loging in. get the  userDetails
     @PostMapping("/putOrder")
     public ResponseEntity<String> putOrder(@RequestBody List<HashMap<String, Integer>> productLists, Authentication auth){
             boolean b = orderService.putOrderServ(productLists, auth);
-            return ResponseEntity.ok("下单成功");
+            return ResponseEntity.ok("ordered successfully");
 
-// 客户 只需要提供
-// product_id      INT, ---- 要✅
-// quantity        INT,   ---- 要✅
     }
 
     @DeleteMapping("/delete/{id}")
@@ -58,12 +55,12 @@ public class OrderController {
         String substring = token.substring(7);
         String role = jwtUtil.getRole(substring);
 
-        //1.只有admin才能删订单
-        if(role == null || !role.equals("admin")){//admin 删订单是不检查 user_id 的，任何订单都能删。
+        //1.Only admin can delete any orders
+        if(role == null || !role.equals("admin")){
             return ResponseEntity.status(403).body("you are not admin");
         }
 
-        //2.准备删订单
+        //2.prepare deleting orders
         boolean b = orderService.deleteOrderServ(id);
         if(b) return ResponseEntity.ok("deleted successfully");
         return ResponseEntity.status(500).body("failed deletion");
@@ -78,12 +75,12 @@ public class OrderController {
     }
 
 
-    @PostMapping("")
+    @PostMapping("return")
     public void returnProductsRepo(@RequestHeader("Authentication") String tokenwithprefix) {
         String token = tokenwithprefix.substring(7);
-        String role = jwtUtil.getRole(token);//user or admin
-        //1.只有admin才能删订单
-        if(role == null || !role.equals("admin")){//admin 删订单是不检查 user_id 的，任何订单都能删。
+        String role = jwtUtil.getRole(token);
+        //1.only admin can delete orders
+        if(role == null || !role.equals("admin")){
 
         }
     }
@@ -92,7 +89,7 @@ public class OrderController {
             @PathVariable("orderId") int orderId,
             Authentication authentication) {
 
-        // 权限校验:只有admin能退货
+        // authentication verification
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 

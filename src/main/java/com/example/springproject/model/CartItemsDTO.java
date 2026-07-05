@@ -11,12 +11,8 @@ public class CartItemsDTO {
     private Long productId;
     private Integer quantity;
     private Integer selected;
-    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
     private LocalDateTime createdAt;
-    @DateTimeFormat// ❌ 不需要// @DateTimeFormat 是用在 Controller 接收前端传来的日期字符串 DTO里的 createdAt/updatedAt 是数据库自动生成的，用户不会传这个
-
     private LocalDateTime updatedAt;
-
     public CartItemsDTO() {
     }
 

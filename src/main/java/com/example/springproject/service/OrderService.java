@@ -17,7 +17,7 @@ public class OrderService {
     @Autowired
     public JdbcTemplate jdbcTemplate;
     public boolean putOrderServ(List<HashMap<String, Integer>> products, Authentication auth) {
-        // 从JWT取username → 查数据库拿user_id
+
         String username = auth.getName();
         Integer userId = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE user_Name=?", Integer.class, username

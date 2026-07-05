@@ -12,12 +12,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    //AuthenticationManager 是 Spring Security 内部的东西 用来验证密码
+    //AuthenticationManager is from Spring Security, it used to verify password
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -26,19 +31,33 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    // 告诉 Spring Security 用 BCrypt 来验证密码 ----你这个java class中没有调用它，但是spring security内部代码自动调用了
+    // Tell Spring Security to use BCrypt for password verification---spring security used it internally
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://127.0.0.1:5500", "http://localhost:5500"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/hello", "/swagger-ui/**", "/v3/api-docs/**","/v3/api-docs", "/error" ).permitAll()
-                        .anyRequest().authenticated()                        // 其余anyRequest都要authenticated登录
+                        .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable()) // 测试时候 可以disable CSRF（Cross-Site Request Forgery，跨站请求伪造）是针对 Cookie 登录 的攻击
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 防伪造攻击，开发先关掉 ，关掉 csrf，不然 POST 请求会被拦截
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)// ← 加这行 把 JwtFilter 插在默认Filter（UsernamePasswordAuthenticationFilter）前面
                 .logout(x->x.disable()); //Spring Security 默认自己接管了 /logout 这个路径，你的 Controller 根本不会被执行到，直接被框架拦截返回 403。你自己写的 @GetMapping("/logout") 根本不会执行,选择B： 把你的接口改个名字，比如 /signout，完全绕开冲突：@GetMapping("/signout")
@@ -46,5 +65,5 @@ public class SecurityConfig {
         return http.build();
     }
 }
-///hello  → 白名单，直接放行 → 不需要Session → 没有JSESSIONID
-///test   → 需要登录 → Spring Security创建Session → 有JSESSIONID ✅
+///hello  → whilte list，allowed directly → no needSession → no JSESSIONID
+///test   → need to login → Spring Security create Session → has JSESSIONID ✅

@@ -25,12 +25,10 @@ public class CartRepository {
         int count =  cartMapper.countCartItem(Math.toIntExact(cartItemsDTO.getUserId()), Math.toIntExact(cartItemsDTO.getProductId()));
 
         if (count > 0) {
-            // 已存在 → 累加数量
             String update = "UPDATE cart_items SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?";
             return jdbcTemplate.update(update, cartItemsDTO.getQuantity(),
                     cartItemsDTO.getUserId(), cartItemsDTO.getProductId()) > 0;
         }
-            // created_at 和 updated_at 在表里已经设了 DEFAULT NOW()
             String sql = "INSERT INTO cart_items(user_id, product_id, quantity) VALUES (?, ?, ?)";
 
             int update = jdbcTemplate.update(sql,
@@ -55,7 +53,7 @@ public class CartRepository {
         return update>0;
     }
     public CartJoinProductDTO search(int id){
-        //和之前的product 一样的逻辑
+
 //        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.id = ?";
 //        CartJoinProductDTO cartJoinProductDTO = jdbcTemplate.queryForObject(sql, (rs, row) -> new CartJoinProductDTO(
 //                rs.getLong("id"),
@@ -70,7 +68,7 @@ public class CartRepository {
     }
 
     public  List<Map<String, Object>> searchList(int userid){
-        //和之前的product 一样的逻辑
+
 //        String sql = "select * from cart_items c join products p on c.product_id=p.id where c.user_id = ?";
 //         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql,userid);
 

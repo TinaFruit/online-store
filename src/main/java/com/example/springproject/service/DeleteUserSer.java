@@ -18,10 +18,10 @@ public class DeleteUserSer {
     private CommonUtil commonUtil;
 
     public boolean deleteUserSer(Users user){
-        //check user 并提供数据库的密码
+
         String encodePassword = commonUtil.checkUserAndGetPassword(user.getUserName());
         if (encodePassword == null) return false;
-        //match密码是否相同
+
         boolean matches = passwordEncoder.matches(user.getPassword(), encodePassword);
         if(!matches){
             return false;
