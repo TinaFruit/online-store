@@ -54,7 +54,7 @@ public class ProductsFuction {
 
     @GetMapping("/search")
     public ResponseEntity<?> productSearch(@RequestParam Long id){
-        System.out.println("查询id: " + id);
+        System.out.println("seach id: " + id);
         ProductSummaryDTO productSummaryDTO = ProductSer.productSearchSer(id);
         if(productSummaryDTO == null){
             ResponseEntity.status(500).body("failed to search");

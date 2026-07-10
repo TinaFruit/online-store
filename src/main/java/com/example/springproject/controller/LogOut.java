@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LogOut {
-    //remove cookie:make jwt token invalid
-
     @Autowired
     private LogoutSer logoutSer;
 

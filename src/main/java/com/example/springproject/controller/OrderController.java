@@ -20,57 +20,37 @@ public class OrderController {
     @Autowired
     private JwtUtil jwtUtil;
 
-//    AuthenticationManager — 用来验证用户名密码，登录的时候用：
-//    Authentication auth — used for retrieving userDetails, after loging in. get the  userDetails
+    //    Authentication auth — used for retrieving userDetails, after loging in. get the  userDetails
     @PostMapping("/putOrder")
-    public ResponseEntity<String> putOrder(@RequestBody List<HashMap<String, Integer>> productLists, Authentication auth){
-            boolean b = orderService.putOrderServ(productLists, auth);
-            return ResponseEntity.ok("ordered successfully");
+    public ResponseEntity<String> putOrder(@RequestBody List<HashMap<String, Integer>> productLists, Authentication auth) {
+        boolean b = orderService.putOrderServ(productLists, auth);
+        return ResponseEntity.ok("ordered successfully");
 
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> putOrder(@RequestHeader("Authorization") String token, @PathVariable int id)
-//   方法2: public ResponseEntity<String> deleteOrder(Authentication authentication, @PathVariable int id)
+    public ResponseEntity<String> putOrder(@RequestHeader("Authorization") String token, @PathVariable int id) {
 
-    //@RequestHeader("Authorization") + jwtUtil.getRole(token)
-    //→ 手动解析token取role
-    //
-    //Authentication authentication
-    //→ JwtFilter已经帮你解析好了，直接取
-    {
-        //登录：
-        //username + password
-        //→ Spring Security 验证
-        //→ 查数据库取 role
-        //→ JWT 存入 username + role
-        //→ 返回 token 给客户端
-        //
-        //删订单：
-        //客户端带着 token
-        //→ 从 token 取出 role
-        //→ role == admin → 允许删除
-        //→ role == user  → 403 拒绝
 
         String substring = token.substring(7);
         String role = jwtUtil.getRole(substring);
 
         //1.Only admin can delete any orders
-        if(role == null || !role.equals("admin")){
+        if (role == null || !role.equals("admin")) {
             return ResponseEntity.status(403).body("you are not admin");
         }
 
         //2.prepare deleting orders
         boolean b = orderService.deleteOrderServ(id);
-        if(b) return ResponseEntity.ok("deleted successfully");
+        if (b) return ResponseEntity.ok("deleted successfully");
         return ResponseEntity.status(500).body("failed deletion");
 
     }
 
     @PutMapping("/admendent/{orderId}")
-    public ResponseEntity<String>  amendent(@RequestBody List<HashMap<String, Integer>> productLists, @PathVariable int orderId){
-        boolean b = orderService.amendentServ(productLists,orderId);
-        if(b) return ResponseEntity.ok("success added ");
+    public ResponseEntity<String> amendent(@RequestBody List<HashMap<String, Integer>> productLists, @PathVariable int orderId) {
+        boolean b = orderService.amendentServ(productLists, orderId);
+        if (b) return ResponseEntity.ok("success added ");
         return ResponseEntity.status(500).body("failed to adment");
     }
 
@@ -80,10 +60,11 @@ public class OrderController {
         String token = tokenwithprefix.substring(7);
         String role = jwtUtil.getRole(token);
         //1.only admin can delete orders
-        if(role == null || !role.equals("admin")){
+        if (role == null || !role.equals("admin")) {
 
         }
     }
+
     @PostMapping("/return/{orderId}")
     public ResponseEntity<String> returnProductsRepso(
             @PathVariable("orderId") int orderId,
@@ -120,12 +101,13 @@ public class OrderController {
 
 
     @GetMapping("/searchOrder")
-    public ResponseEntity<?> searchOderByusername(Authentication auth){
+    public ResponseEntity<?> searchOderByusername(Authentication auth) {
         String name = auth.getName();
         List<OrderDetailDTO> orderDetailDTOS = orderService.searchOderServ(name);
-        if (orderDetailDTOS.isEmpty()){
-            return ResponseEntity.status(409).body("empty"); }
-        return ResponseEntity.ok(  orderDetailDTOS) ;
+        if (orderDetailDTOS.isEmpty()) {
+            return ResponseEntity.status(409).body("empty");
+        }
+        return ResponseEntity.ok(orderDetailDTOS);
 
     }
 }
