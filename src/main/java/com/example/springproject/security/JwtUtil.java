@@ -15,34 +15,34 @@ import static com.example.springproject.service.LogoutSer.blacklist;
 @Component
 public class JwtUtil {
 
-    // 密钥：服务器自己知道，用来签名和验证
+    // Secret key: known only to the server, used to sign and verify tokens
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    // Token 有效期：24小时
+    // Token validity: 24 hours
     private final long EXPIRATION = 1000 * 60 * 60 * 24;
     private LocalDateTime localDateTime = LocalDateTime.now();
 
-    // 生成 Token
+    // Generate a token
     public String generateToken(String username, String role) {
         return Jwts.builder()
-                .setSubject(username)// 存入用户名
-                .setIssuedAt(new Date())     // 签发时间
-                .claim("role", role) //自创的 获取role value
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION)) // 过期时间
-                .signWith(key)               // 用密钥签名
+                .setSubject(username)// store username as subject
+                .setIssuedAt(new Date())     // issued-at timestamp
+                .claim("role", role) // custom claim: user role
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION)) // expiration time
+                .signWith(key)               // sign with the secret key
                 .compact();
     }
 
     public String getRole(String token) {
-        return Jwts.parserBuilder()//→ 创建解析器
-                .setSigningKey(key)// → 设置密钥（用来验证token合法性）
-                .build()// → 建好解析器
-                .parseClaimsJws(token)//→ 解析token，拿到完整数据
-                .getBody()// → 拿到数据体（里面装着username、role、过期时间等）
-                .get("role", String.class);  // → 从数据体里取出role // 取出自定义的role字段
+        return Jwts.parserBuilder()// build a parser
+                .setSigningKey(key)// set the signing key (used to verify the token)
+                .build()// finish building the parser
+                .parseClaimsJws(token)// parse the token to get its full claims
+                .getBody()// get the claims body (username, role, expiration, etc.)
+                .get("role", String.class);  // extract the custom "role" claim
     }
 
-    // 从 Token 里取出用户名 （Token 里藏着用户名 每次请求都靠它来认出你是谁 ）
+    // Extract the username from the token (used to identify the caller on each request)
     public String getUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -52,11 +52,11 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    // 验证 Token 是否有效
+    // Validate whether a token is still valid
     public boolean validateToken(String token) {
         try {
             if(blacklist.contains(token)){
-return false;
+                return false;
             }
             Jwts.parserBuilder()
                     .setSigningKey(key)

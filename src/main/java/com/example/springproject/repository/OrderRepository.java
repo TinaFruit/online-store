@@ -176,23 +176,23 @@ public class OrderRepository {
             Integer quantity = product.get("quantity");
             String sqln = "select price from products where id = ?";
             try{
-            BigDecimal singlePrice = jdbcTemplate.queryForObject(sqln, BigDecimal.class, productid);
-            //get total price
-            totalPrice = totalPrice.add(singlePrice.multiply(BigDecimal.valueOf(quantity)));
+                BigDecimal singlePrice = jdbcTemplate.queryForObject(sqln, BigDecimal.class, productid);
+                //get total price
+                totalPrice = totalPrice.add(singlePrice.multiply(BigDecimal.valueOf(quantity)));
 
             }catch (Exception e){
                 throw  new RuntimeException("failed to update stock_quantity");
             }
 
-            // 3. stock = stock -? ?
+            // 3. decrease stock, prevent overselling (stock_quantity >= quantity)
             String sql2 ="update products set stock_quantity = stock_quantity - ? where id = ? and stock_quantity >= ?";
-            int update = jdbcTemplate.update(sql2, quantity, productid,quantity); //注意防止超卖 and stock_quantity > ?"
+            int update = jdbcTemplate.update(sql2, quantity, productid,quantity);
             if(update <=0 ){throw new RuntimeException("failed to update");}
 
             //update neworder_detail table
             String sql4 ="update neworder_detail set quantity = quantity+?, updated_at = now() where order_id = ? and product_id = ?";
             int update1 = jdbcTemplate.update(sql4, quantity, orderId, productid);
-            //⚠️：如果update1 = 0 it coulc be new item, need to be added
+            // note: if update1 == 0, this is a new item that needs to be inserted
             if(update1 == 0){
                 String sql5 ="insert into neworder_detail (order_id, product_id, quantity, created_at,updated_at)values (?, ?, ?, now(), now())";
                 int update2 = jdbcTemplate.update(sql5, orderId, productid,quantity);
@@ -212,7 +212,7 @@ public class OrderRepository {
     @Transactional
     public boolean returnProductsRepo(int orderId) {
 
-        // 1. 检查订单存在 + 拿当前状态
+        // 1. Check order exists and get its current status
         String sql = "select status from neworders where order_id = ?";
         String status;
         try {
@@ -221,12 +221,12 @@ public class OrderRepository {
             throw new RuntimeException("Order not found: " + orderId);
         }
 
-        // 2. 只有已支付/已发货/已完成的订单才能退货
+        // 2. Only PAID, SHIPPED, or COMPLETED orders can be returned
         if (!Set.of("PAID", "SHIPPED", "COMPLETED").contains(status)) {
             throw new IllegalStateException("Order cannot be returned, current status: " + status);
         }
 
-        // 3. 恢复库存 —— 遍历该订单的所有商品明细
+        // 3. Restore stock — loop through all line items in this order
         String detailSql = "select product_id, quantity from neworder_detail where order_id = ?";
         List<Map<String, Object>> details = jdbcTemplate.queryForList(detailSql, orderId);
 
@@ -241,7 +241,7 @@ public class OrderRepository {
             }
         }
 
-        // 4. 更新订单状态为RETURNED
+        // 4. Update order status to RETURNED
         String updateSql = "update neworders set status = 'RETURNED', updated_at = now() where order_id = ?";
         int updated = jdbcTemplate.update(updateSql, orderId);
         if (updated <= 0) {
@@ -322,6 +322,6 @@ public class OrderRepository {
             throw new RuntimeException("failed to search orders", e);
         }
         //2.display all detals
-       return orderlist;
+        return orderlist;
     }
 }
