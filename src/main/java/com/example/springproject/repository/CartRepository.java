@@ -6,6 +6,7 @@ import com.example.springproject.model.CartJoinProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import java.util.List;
 import java.util.Map;
 
@@ -18,10 +19,7 @@ public class CartRepository {
     @Autowired
     private CartMapper cartMapper;
     public boolean add(CartItemsDTO cartItemsDTO){
-        //before add,check
-//        String check = "SELECT COUNT(*) FROM cart_items WHERE user_id = ? AND product_id = ?";
-//        int count = jdbcTemplate.queryForObject(check, Integer.class,
-//                cartItemsDTO.getUserId(), cartItemsDTO.getProductId());
+
         int count =  cartMapper.countCartItem(Math.toIntExact(cartItemsDTO.getUserId()), Math.toIntExact(cartItemsDTO.getProductId()));
 
         if (count > 0) {
@@ -40,6 +38,14 @@ public class CartRepository {
 
     }
 
+    public Integer getUserIdByCartItemId(int id) {
+        String sql = "select user_id from cart_items where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 
 
     public boolean delete(int id){

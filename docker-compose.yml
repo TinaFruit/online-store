@@ -11,7 +11,7 @@ services:
       DB_PORT: 3306
       DB_NAME: test
       DB_USERNAME: root
-      DB_PASSWORD: REDACTED
+      DB_PASSWORD: yourpassword
       REDIS_HOST: redis
       REDIS_PORT: 6379
 
@@ -27,13 +27,13 @@ services:
     container_name: online-store-mysql
 
     environment:
-      MYSQL_ROOT_PASSWORD: REDACTED
+      MYSQL_ROOT_PASSWORD: yourpassword
       MYSQL_DATABASE: test
 
     ports:
       - "3307:3306"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pREDACTED" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pyourpassword" ]
       interval: 5s
       timeout: 5s
       retries: 10

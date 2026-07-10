@@ -28,8 +28,20 @@ public class OrderService {
        return orderRepository.deleteOrderRepo(orderId);
     }
 
-    public boolean amendentServ(List<HashMap<String, Integer>> products, int orderId) {
-        return orderRepository.amendentRepo(products,orderId);
+    public boolean amendentServ(List<HashMap<String, Integer>> products, int orderId, Authentication auth) {
+        String username = auth.getName();
+        Integer currentUserId = jdbcTemplate.queryForObject(
+                "SELECT id FROM users WHERE user_Name=?", Integer.class, username
+        );
+        Integer ownerId = orderRepository.getOrderOwnerId(orderId);
+
+        if (ownerId == null) {
+            throw new RuntimeException("order not found");
+        }
+        if (!ownerId.equals(currentUserId)) {
+            throw new RuntimeException("you are not allowed to amend this order");
+        }
+        return orderRepository.amendentRepo(products, orderId);
     }
 
     public boolean returnProductsServ(int orderId) {

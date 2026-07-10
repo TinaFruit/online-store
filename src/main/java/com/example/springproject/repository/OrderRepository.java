@@ -21,6 +21,15 @@ public class OrderRepository {
     @Autowired
     public JdbcTemplate jdbcTemplate;
 
+    public Integer getOrderOwnerId(int orderId) {
+        String sql = "select user_id from neworders where order_id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, orderId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     @Transactional
     public boolean putOrderRepo(List<HashMap<String, Integer>> products, Integer userId) {
         //START

@@ -28,22 +28,17 @@ public class CartController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam int id) {
-        if (!cartService.delete(id)) return ResponseEntity.status(500).body("failed to delete");
+    public ResponseEntity<?> delete(@RequestParam int id, Authentication auth) {
+        if (!cartService.delete(id, auth.getName())) return ResponseEntity.status(500).body("failed to delete");
         return ResponseEntity.ok("success deleted");
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> update(@RequestParam int quantity, @RequestParam int id) {
-        if (!cartService.update(quantity, id)) return ResponseEntity.status(500).body("failed to update");
+    public ResponseEntity<?> update(@RequestParam int quantity, @RequestParam int id, Authentication auth) {
+        if (!cartService.update(quantity, id, auth.getName())) return ResponseEntity.status(500).body("failed to update");
         return ResponseEntity.ok("success updated");
     }
-    @GetMapping("/searchOne")
-    public ResponseEntity<?> searchOne(@RequestParam int userid) {
-        List<CartJoinProductDTO> result = cartService.searchOne(userid);
-        if (result == null || result.isEmpty()) return ResponseEntity.status(404).body("no found");
-        return ResponseEntity.ok(result);
-    }
+
     @GetMapping("/searchAll")
     public ResponseEntity<?> searchList(Authentication auth) {
         String username =  auth.getName();

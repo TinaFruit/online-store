@@ -22,7 +22,7 @@ public class HanderException {
         return ResponseEntity.status(ap.getCode()).body(ap.getMessage());
     }
     @ExceptionHandler(NoAnydisplayException.class)
-    public ResponseEntity<?> NoAnydisplayException(AppException ap){
+    public ResponseEntity<?> NoAnydisplayException(NoAnydisplayException ap){
         return ResponseEntity.status(ap.getCode()).body(ap.getMessage());
     }
 
