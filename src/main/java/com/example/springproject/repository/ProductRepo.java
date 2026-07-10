@@ -76,7 +76,7 @@ public class ProductRepo {
 //            }, id);
 
         ProductSummaryDTO productSummaryDTO = productMapper.productSearch(id);
-        if (productSummaryDTO == null) throw new AppException(404, "商品不存在");
+        if (productSummaryDTO == null) throw new AppException(404, "product not found");
         return productSummaryDTO;
     }
 
